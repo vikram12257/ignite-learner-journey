@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IGNITE Learner Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#142033; --muted:#5a6679; --line:#d5dce6;
+  --found:#2c58c9; --found-soft:#e2e9fb; --track:#b95d1c; --track-soft:#f7e5d6;
+  --ready:#16825a; --ready-soft:#dcf2e8; --exit:#6f7a8b; --exit-soft:#e9ecf1;
+  --cap:#9a6b00; --cap-soft:#fbf0cf;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131b; --surface:#161d28; --ink:#e7ecf3; --muted:#9ba7b8; --line:#2a3445;
+    --found:#7ea0f2; --found-soft:#1b2946; --track:#eb955a; --track-soft:#3b2515;
+    --ready:#4cc58f; --ready-soft:#123427; --exit:#8e99aa; --exit-soft:#222b38;
+    --cap:#e7bd4f; --cap-soft:#352a0c;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131b; --surface:#161d28; --ink:#e7ecf3; --muted:#9ba7b8; --line:#2a3445;
+  --found:#7ea0f2; --found-soft:#1b2946; --track:#eb955a; --track-soft:#3b2515;
+  --ready:#4cc58f; --ready-soft:#123427; --exit:#8e99aa; --exit-soft:#222b38;
+  --cap:#e7bd4f; --cap-soft:#352a0c;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;padding-inline:clamp(16px,4vw,48px);padding-block:32px 64px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,5vw,56px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:26px;font-weight:800;letter-spacing:-.01em}
+h3{font-size:19px;font-weight:600}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:68ch;color:var(--muted);font-size:17px;margin:12px 0 0}
+header{display:flex;flex-direction:column;gap:6px}
+
+.logic{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.logic div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.logic b{display:block;font-family:var(--display);font-size:16px;margin-bottom:4px}
+.logic p{margin:0;color:var(--muted);font-size:14px}
+
+section{display:flex;flex-direction:column;gap:14px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.note{color:var(--muted);font-size:13px;margin:0}
+
+/* timeline */
+.tl{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 12px;overflow-x:auto}
+.tl-inner{min-width:760px;display:grid;grid-template-columns:190px 1fr;row-gap:8px}
+.tl-months{grid-column:2;display:grid;grid-template-columns:repeat(10,1fr);font-family:var(--mono);font-size:11px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:6px}
+.tl-months span{padding-left:4px;border-left:1px solid var(--line)}
+.tl-label{font-size:13px;color:var(--ink);align-self:center;padding-right:10px}
+.tl-label small{display:block;color:var(--muted);font-size:11px}
+.tl-track{position:relative;height:26px;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--line) calc(10% - 1px) 10%)}
+.bar{position:absolute;top:4px;height:18px;border-radius:5px;font-size:11px;font-family:var(--mono);display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden}
+.bar.found{background:var(--found);color:var(--surface)}
+.bar.track{background:var(--track);color:var(--surface)}
+.bar.gate{background:var(--ink);color:var(--surface)}
+.bar.m8{background:var(--found-soft);color:var(--found);border:1px dashed var(--found)}
+.bar.comp{background:var(--ready-soft);color:var(--ready);border:1px solid var(--ready)}
+.tl-group{grid-column:1 / -1;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+/* map */
+.map{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+.map svg{display:block;min-width:1320px;width:100%;height:auto}
+.st rect,.st path{transition:transform .15s ease}
+.st{cursor:pointer}
+.st:focus{outline:none}
+.st:focus-visible .shape,.st:hover .shape{stroke-width:3}
+.st.sel .shape{stroke-width:3.5}
+.t-ink{fill:var(--ink)} .t-muted{fill:var(--muted)}
+.lbl{font-family:var(--display);font-weight:600;font-size:15px}
+.s-found .lbl{font-size:13.5px}
+.s-track .lbl{font-size:13.5px}
+.sub{font-family:var(--body);font-size:12px}
+.code{font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+.wire-f{stroke:var(--found);stroke-width:4;fill:none}
+.wire-t{stroke:var(--track);stroke-width:3;fill:none}
+.wire-x{stroke:var(--exit);stroke-width:2.5;fill:none;stroke-dasharray:6 6}
+.wire-r{stroke:var(--ready);stroke-width:2.5;fill:none;stroke-dasharray:4 5}
+.s-found .shape{fill:var(--found-soft);stroke:var(--found)}
+.s-track .shape{fill:var(--track-soft);stroke:var(--track)}
+.s-gate .shape{fill:var(--ink);stroke:var(--ink)}
+.s-exit .shape{fill:var(--exit-soft);stroke:var(--exit)}
+.s-m8 .shape{fill:var(--found-soft);stroke:var(--found);stroke-dasharray:6 4}
+.s-comp .shape{fill:var(--ready-soft);stroke:var(--ready)}
+.s-base .shape{fill:var(--surface);stroke:var(--ink)}
+.flag{fill:var(--ready)}
+.flag-t{fill:var(--ready);font-family:var(--mono);font-size:10.5px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:4px solid var(--found);vertical-align:middle;margin-right:6px}
+.legend i.t{border-top:3px solid var(--track)} .legend i.x{border-top:2.5px dashed var(--exit)} .legend i.r{border-top:2.5px dashed var(--ready)}
+
+/* detail */
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:clamp(16px,3vw,28px);display:flex;flex-direction:column;gap:22px}
+.d-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-end}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:999px;background:var(--found-soft);color:var(--found)}
+.pill.t{background:var(--track-soft);color:var(--track)}
+.pill.r{background:var(--ready-soft);color:var(--ready)}
+.rationale{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.rationale div{border-top:3px solid var(--line);padding-top:10px}
+.rationale.f div{border-top-color:var(--found)} .rationale.t div{border-top-color:var(--track)}
+.rationale b{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+.rationale p{margin:0;font-size:14.5px}
+.chain-head{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline}
+.chain{display:flex;flex-wrap:wrap;gap:0;align-items:stretch;row-gap:14px}
+.node{position:relative;width:196px;border:1.5px solid var(--found);background:var(--surface);border-radius:10px;padding:10px 12px 12px;text-align:left;font:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.chain.t .node{border-color:var(--track)}
+.node.cap{background:var(--cap-soft);border-color:var(--cap)}
+.node[aria-expanded="true"]{box-shadow:0 0 0 3px var(--found-soft)}
+.chain.t .node[aria-expanded="true"]{box-shadow:0 0 0 3px var(--track-soft)}
+.node .n{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.node .nt{font-family:var(--display);font-weight:600;font-size:15px;line-height:1.2}
+.node .no{font-size:13px;color:var(--muted);line-height:1.4}
+.node .tag{font-family:var(--mono);font-size:10.5px;color:var(--cap);text-transform:uppercase;letter-spacing:.06em}
+.node .uses{font-size:11.5px;color:var(--found);font-family:var(--mono)}
+.node .rd{font-size:11.5px;color:var(--ready);font-family:var(--mono);font-weight:500}
+.node .more{font-size:12.5px;color:var(--ink);border-top:1px solid var(--line);padding-top:6px;margin-top:4px}
+.arrow{align-self:center;width:22px;height:2px;background:var(--line);position:relative;flex:none}
+.arrow::after{content:"";position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left:6px solid var(--line);border-right:0}
+.subchain{display:flex;flex-direction:column;gap:10px;padding-top:6px}
+.subchain + .subchain{border-top:1px dashed var(--line);padding-top:18px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tab:focus-visible,.node:focus-visible{outline:2px solid var(--found);outline-offset:2px}
+@media (max-width:520px){.node{width:100%}.arrow{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">Project Shakti · Grades 6 to 8 · Robotics competition pathway</span>
+  <h1>IGNITE Learner Journey</h1>
+  <p class="lede">From the baseline to competition day. Every learner takes Foundation. Learners selected on capstone performance prepare for the competition they chose, and a team can leave for its competition once its robot meets the competition minimum.</p>
+  <div class="logic">
+    <div><b>One concept per session</b><p>Every session is 60 minutes and teaches one concept. Schools run 2 sessions a week.</p></div>
+    <div><b>Do, Review, Learn, Apply</b><p>Every session follows the same four parts.</p></div>
+    <div><b>Capstones track progress</b><p>Every module ends in a capstone. The capstone is the progress tracker, and Foundation capstones decide selection.</p></div>
+  </div>
+</header>
+
+<section aria-labelledby="tl-h">
+  <div class="sec-head"><h2 id="tl-h">Timeline</h2><p class="note">Tentative. Sessions count 2 a week from 1 October 2026; school holidays are not yet accounted for. Module 8 is a flexible 1 to 2 day bootcamp before competition. Competition windows use last year's calendar.</p></div>
+  <div class="tl"><div class="tl-inner" id="tl"></div></div>
+</section>
+
+<section aria-labelledby="map-h">
+  <div class="sec-head"><h2 id="map-h">Journey</h2><p class="note">Select any stage to see its sessions and outcomes below. On smaller screens, scroll sideways to see the full journey.</p></div>
+  <div class="map" id="map"></div>
+  <div class="legend"><span><i></i>Foundation, every learner</span><span><i class="t"></i>Competition track</span><span><i class="r"></i>Leaves for competition</span><span><i class="x"></i>Exits with certificate</span></div>
+</section>
+
+<section aria-labelledby="d-h" id="detail-sec">
+  <div class="tabs" id="tabs" role="group" aria-label="Choose a stage"></div>
+  <div class="detail" id="detail" aria-live="polite"></div>
+</section>
+</div>
+
+<script>
+const DATA = {"found": [{"key": "M1", "label": "Module 1", "title": "What makes a robot work?", "full": "Module 1: What makes a robot work?", "obj": "Learners build and control simple circuits safely.", "big": "Learners understand that electricity does work only through a complete path, and the parts on that path decide what happens.", "cap": "Barriered Traffic Control", "range": "S1 to S8", "why": "", "unlocks": "", "sessions": [{"n": 1, "t": "Make the Light Work", "o": "Trace the complete path of an LED circuit they built", "k": "LED lights with the resistor in place; team shows why the reversed LED stays dark", "dq": "How do we connect parts so a light turns on safely?", "cap": false, "uses": [], "ready": null}, {"n": 2, "t": "Control the Light", "o": "Explain how a switch controls the light", "k": "Light turns on and off from the switch in two positions in the loop; team compares it with removing a wire", "dq": "How can we control when the light turns on?", "cap": false, "uses": [], "ready": null}, {"n": 3, "t": "Choose the Brightness", "o": "Explain why more resistance gives a dimmer light", "k": "Three resistors read and measured; brightness order matches resistance order", "dq": "How can we make the light brighter or dimmer?", "cap": false, "uses": [], "ready": null}, {"n": 4, "t": "Draw the Plan", "o": "Draw a circuit diagram another team can build from", "k": "Another team builds from it and it works; symbols match the key", "dq": "How can we draw a plan anyone can build?", "cap": false, "uses": [], "ready": null}, {"n": 5, "t": "Plan Many Lights", "o": "Explain why parallel keeps working when one LED is removed", "k": "Prediction written before the test; three LEDs wired both ways", "dq": "What happens to the other lights when one fails?", "cap": false, "uses": [], "ready": null}, {"n": 6, "t": "Make It Move", "o": "Reverse a motor using a DPDT switch", "k": "Motor runs both ways from the switch; team says what changed in the supply", "dq": "How can electricity make something move and change direction?", "cap": false, "uses": [], "ready": null}, {"n": 7, "t": "Capstone: Build", "o": "Build an operator controlled model from their paper plan", "k": "Plan done before kit is handed out; operator controls lights and barrier from switches", "dq": "Can we build a barrier an operator controls?", "cap": true, "uses": [], "ready": null}, {"n": 8, "t": "Capstone: Test and Show", "o": "Fix one fault found in testing", "k": "Three traffic scenarios run; fault logged with cause and fix; each member explains one part", "dq": "Does our barrier keep traffic safe?", "cap": true, "uses": [], "ready": null}], "weeks": "Weeks 1 to 4", "dates": "1 Oct to 28 Oct"}, {"key": "M2", "label": "Module 2", "title": "How does a robot think?", "full": "Module 2: How does a robot think?", "obj": "Learners program a microcontroller to follow instructions and respond to inputs.", "big": "Learners understand that a machine does exactly what its program says, in order, and decides only from what its inputs report.", "cap": "Automatic Traffic Signal", "range": "S9 to S15", "why": "", "unlocks": "", "sessions": [{"n": 9, "t": "Give the Light a Brain", "o": "Change the order and timing of LED instructions in a block program", "k": "First upload works; LEDs follow a new order the team wrote", "dq": "How can a machine follow instructions?", "cap": false, "uses": [], "ready": null}, {"n": 10, "t": "Keep Time", "o": "Use a loop to repeat a timed signal cycle", "k": "Cycle repeats without stopping; team changes one timing on request", "dq": "How can a machine repeat a pattern on time?", "cap": false, "uses": [], "ready": null}, {"n": 11, "t": "Listen to a Button", "o": "Use if/else so a button press changes the signal", "k": "Signal changes only when pressed; buzzer sounds during the crossing", "dq": "How can a machine decide what to do?", "cap": false, "uses": [], "ready": null}, {"n": 12, "t": "Read a Sensor", "o": "Describe how a sensor value changes as an object comes closer", "k": "Values at three distances recorded in the Makerbook", "dq": "What does a sensor tell the machine?", "cap": false, "uses": [], "ready": null}, {"n": 13, "t": "Remember a Reading", "o": "Set a threshold from their own readings to detect a vehicle", "k": "Threshold comes from recorded values; signal responds only past it", "dq": "How can a machine remember what it sensed?", "cap": false, "uses": [], "ready": null}, {"n": 14, "t": "Capstone: Build", "o": "Combine the cycle, the button and the sensor in one program", "k": "All three work in one upload; team reads the program aloud", "dq": "Can our signals run themselves?", "cap": true, "uses": [], "ready": null}, {"n": 15, "t": "Capstone: Test and Show", "o": "Compare automatic and operator control using test evidence", "k": "Same scenarios run on both; three results in a table; team states which suits which case", "dq": "Is automatic better than the operator?", "cap": true, "uses": [], "ready": null}], "weeks": "Weeks 5 to 8", "dates": "29 Oct to 25 Nov"}, {"key": "M3", "label": "Module 3", "title": "How does a robot move?", "full": "Module 3: How does a robot move?", "obj": "Learners make a robot move on command and control its speed.", "big": "Learners understand that movement is controlled by timing and power, and timing alone drifts.", "cap": "Village Delivery Run", "range": "S16 to S22", "why": "", "unlocks": "", "sessions": [{"n": 16, "t": "Move to a Position", "o": "Program servo angles that raise and lower the barrier", "k": "Barrier stops at the written angles; team predicts one new angle before testing", "dq": "How can a machine move to an exact spot?", "cap": false, "uses": [], "ready": null}, {"n": 17, "t": "Build the Body", "o": "Explain how battery position changes stability", "k": "All screws tight; tip test shown with the battery in two places", "dq": "How do shape and weight change how a robot moves?", "cap": false, "uses": [], "ready": null}, {"n": 18, "t": "Power It Safely", "o": "Follow three battery safety rules while fitting and charging the pack", "k": "Voltage measured and recorded; pack charged only in the fireproof box", "dq": "What does a robot need to run on its own power?", "cap": false, "uses": [], "ready": null}, {"n": 19, "t": "Drive by Code", "o": "Program the robot to go forward, back, left and right", "k": "Four moves on command; team says which wheel turns which way for a left turn", "dq": "How can code make wheels go forward, back and turn?", "cap": false, "uses": [], "ready": null}, {"n": 20, "t": "Control the Speed", "o": "Find the slowest speed value that still moves the robot", "k": "Value found by testing and recorded; retested on a second surface", "dq": "How can a robot go slower or faster?", "cap": false, "uses": [], "ready": null}, {"n": 21, "t": "Capstone: Build", "o": "Program a planned route with timed moves", "k": "Route drawn before coding; robot reaches the shop from the house", "dq": "Can our robot drive the route?", "cap": true, "uses": [], "ready": null}, {"n": 22, "t": "Capstone: Test and Show", "o": "Explain why timed moves land in a different place each run", "k": "Five landing spots marked and measured; two causes named", "dq": "Why doesn't it arrive in the same place every time?", "cap": true, "uses": [], "ready": null}], "weeks": "Weeks 8 to 11", "dates": "19 Nov to 16 Dec"}, {"key": "M4", "label": "Module 4", "title": "How does a robot sense?", "full": "Module 4: How does a robot sense?", "obj": "Learners use sensors so the robot responds to its surroundings.", "big": "Learners understand that sensor readings change with conditions, so thresholds come from tests.", "cap": "Safe Rover", "range": "S23 to S29", "why": "", "unlocks": "", "sessions": [{"n": 23, "t": "See the Line", "o": "Tell black from white using reflectance values", "k": "Two downward sensors mounted; black and white values recorded", "dq": "How can a robot tell black from white?", "cap": false, "uses": [], "ready": null}, {"n": 24, "t": "Measure with Sound", "o": "Stop the robot at a set distance from a wall", "k": "Stops at the set distance three runs in a row", "dq": "How can a robot know how far away a wall is?", "cap": false, "uses": [], "ready": null}, {"n": 25, "t": "Show a Reading", "o": "Show a live sensor reading on the OLED", "k": "Ultrasonic distance updates on screen as a hand moves", "dq": "How can a robot show us what it senses?", "cap": false, "uses": [], "ready": null}, {"n": 26, "t": "Measure with Light", "o": "Compare the accuracy of two distance sensors", "k": "Five distances measured with both and a ruler; team says which is closer and where", "dq": "Can a robot measure distance precisely in small spaces?", "cap": false, "uses": [], "ready": null}, {"n": 27, "t": "Trust Your Sensors", "o": "Set thresholds from readings taken in different light", "k": "Shade and sunlight readings recorded; threshold chosen between them", "dq": "Why does the same sensor give different readings?", "cap": false, "uses": [], "ready": null}, {"n": 28, "t": "Capstone: Build", "o": "Combine edge and wall sensing in one program", "k": "Robot stops at the table edge and before a wall", "dq": "Can our robot keep itself safe?", "cap": true, "uses": [], "ready": null}, {"n": 29, "t": "Capstone: Test and Show", "o": "Trace each failure to its cause", "k": "Failure log has a cause and fix per entry; each member explains one fix", "dq": "What made our robot fail, and how did we fix it?", "cap": true, "uses": [], "ready": null}], "weeks": "Weeks 12 to 15", "dates": "17 Dec to 13 Jan"}, {"key": "M5", "label": "Module 5", "title": "How does a robot decide?", "full": "Module 5: How does a robot decide?", "obj": "Learners program feedback and behaviours so the robot corrects itself.", "big": "Learners understand that a robot stays on course by measuring its error and correcting again and again.", "cap": "Line Follower Time Trial and track choice", "range": "S30 to S36", "why": "", "unlocks": "", "sessions": [{"n": 30, "t": "Follow the Line", "o": "Explain how the robot keeps correcting itself", "k": "Robot completes the zigzag line; team points to sense, decide and act in the code", "dq": "How can a robot keep correcting itself?", "cap": false, "uses": [], "ready": null}, {"n": 31, "t": "Follow It Smoothly", "o": "Map five sensor patterns to five turn amounts", "k": "Table written before coding; filmed run wobbles less than in Session 30", "dq": "How can a robot correct a little or a lot?", "cap": false, "uses": [], "ready": null}, {"n": 32, "t": "Switch Modes", "o": "Program the robot to switch between search, follow and recover", "k": "Robot finds the line again after being lifted off; OLED shows the current mode", "dq": "How can a robot behave differently in different situations?", "cap": false, "uses": [], "ready": null}, {"n": 33, "t": "Code as Text", "o": "Match each block in their program to its line of text", "k": "Every block matched; one value changed in the text behaves as predicted", "dq": "What does our block code look like as text?", "cap": false, "uses": [], "ready": null}, {"n": 34, "t": "Package a Behaviour", "o": "Group a behaviour into a named function and reuse it", "k": "Two named functions called in the main loop", "dq": "How can we package behaviours to reuse them?", "cap": false, "uses": [], "ready": null}, {"n": 35, "t": "Capstone: Build", "o": "Tune the follower to finish the 15 mm track without leaving the line", "k": "Three clean laps; each tuning change logged", "dq": "How fast can we finish without leaving the line?", "cap": true, "uses": [], "ready": null}, {"n": 36, "t": "Capstone: Test and Show", "o": "Justify a track choice with their own results", "k": "Timed runs recorded; choice written with two reasons from the data", "dq": "Which track suits our team?", "cap": true, "uses": [], "ready": null}], "weeks": "Weeks 15 to 18", "dates": "7 Jan to 3 Feb"}], "tracks": [{"key": "race", "name": "Race", "comps": "Robotex Line Follower, Folk Race, Maze Solver", "why": "", "ready": "Line Follower teams are competition ready at S43. Folk Race and Maze teams at S50.", "mods": [{"key": "R6", "label": "Module 6", "title": "Line Follower", "full": "Module 6: Line Follower", "obj": "Learners tune a fast line follower that passes inspection and completes timed heats.", "big": "Learners understand that speed, stability and reliability trade against each other, and only logged runs show the balance.", "cap": "Line Follower Race", "range": "S37 to S43", "why": "", "unlocks": "", "sessions": [{"n": 37, "t": "Speed or Strength", "o": "Choose a motor setup using timed results", "k": "Same track timed with two setups; choice written with the times", "dq": "Should our robot be faster or stronger?", "cap": false, "uses": [], "ready": null}, {"n": 38, "t": "Anticipate the Curve", "o": "Reduce wobble by correcting for how fast the error changes", "k": "Before and after films show fewer swings", "dq": "How can a robot stop overshooting?", "cap": false, "uses": [], "ready": null}, {"n": 39, "t": "Block the Noise", "o": "Shield sensors so readings stay stable under bright light", "k": "Lux and sensor values logged with and without shroud; values hold under torch light", "dq": "Why does the robot fail under bright light?", "cap": false, "uses": [], "ready": null}, {"n": 40, "t": "Hold the Wall", "o": "Hold a set distance from a wall", "k": "Holds within the team's tolerance along 1 m of wall", "dq": "How can a robot stay a fixed distance from a wall?", "cap": false, "uses": [], "ready": null}, {"n": 41, "t": "Track Practice", "o": "Identify their most common failure from ten logged runs", "k": "Ten runs logged; top failure named with a count", "dq": "Can we repeat our best run?", "cap": false, "uses": [], "ready": null}, {"n": 42, "t": "Capstone: Build", "o": "Check the robot against every line follower rule", "k": "Size box and scale checks passed; checklist signed", "dq": "Does our robot meet the rules?", "cap": true, "uses": [], "ready": null}, {"n": 43, "t": "Capstone: Line Follower Race", "o": "Complete timed heats after passing inspection", "k": "Inspection passed; heat times recorded", "dq": "Can we pass inspection and win a race?", "cap": true, "uses": [], "ready": "Ready for Robotex Line Follower"}]}, {"key": "R7", "label": "Module 7", "title": "Folk Race", "full": "Module 7: Folk Race", "obj": "Learners build a 4WD robot that navigates walls and other robots for three minutes.", "big": "Learners understand that a robot that cannot recover cannot finish, however fast it is.", "cap": "Folk Race Heats", "range": "S44 to S50", "why": "", "unlocks": "", "sessions": [{"n": 44, "t": "Over the Obstacles", "o": "Cross obstacles with the 4WD platform", "k": "Crosses sponge and gravel; 3S pack checks done by the teacher before the first run", "dq": "How can a robot cross bumps with four motors?", "cap": false, "uses": [], "ready": null}, {"n": 45, "t": "Choose the Gap", "o": "Choose a direction from three distance readings", "k": "All three sensors read at once; robot turns to the widest gap", "dq": "Which way should the robot go?", "cap": false, "uses": [], "ready": null}, {"n": 46, "t": "Read the Direction", "o": "Identify the green and red bands reliably", "k": "Ten of ten swatch readings correct; robot turns back when going the wrong way", "dq": "Which way is the right way round the track?", "cap": false, "uses": [], "ready": null}, {"n": 47, "t": "Get Unstuck", "o": "Detect when the robot is stuck and run a recovery move", "k": "Robot recovers from a wedge within three tries", "dq": "What should a robot do when it's stuck?", "cap": false, "uses": [], "ready": null}, {"n": 48, "t": "Track Practice", "o": "Log laps and failures across full three minute runs", "k": "Five full runs logged; top failure named", "dq": "Can we survive three minutes every time?", "cap": false, "uses": [], "ready": null}, {"n": 49, "t": "Capstone: Build", "o": "Bring the robot within every folk race rule", "k": "Size, weight and start button checks passed", "dq": "Is our robot heat ready?", "cap": true, "uses": [], "ready": null}, {"n": 50, "t": "Capstone: Folk Race Heats", "o": "Score laps in heats with other robots", "k": "Laps per heat recorded", "dq": "Can we score laps with other robots on the track?", "cap": true, "uses": [], "ready": "Ready for Robotex Folk Race"}]}, {"key": "RM", "label": "Module 7 option", "title": "Maze Solver (replaces Folk Race for teams that choose it)", "full": "Module 7 option: Maze Solver (replaces Folk Race for teams that choose it)", "obj": "Learners build a robot that reaches the finish of an unfamiliar maze using distance sensors and measured turns.", "big": "Learners understand that measured turns beat timed turns, which is the drift from Session 22 solved.", "cap": "Maze Runs", "range": "S44 to S50", "why": "", "unlocks": "", "sessions": [{"n": 44, "t": "Walls on Every Side", "o": "Read five distance sensors at once", "k": "All five values shown together; layout sketched first", "dq": "How does a robot see walls on every side?", "cap": false, "uses": [], "ready": null}, {"n": 45, "t": "Turn Exactly", "o": "Program a turn that stops at 90 degrees using the IMU", "k": "Ten turns logged; compared with Session 22 timed turns", "dq": "How can a robot turn the same amount every time?", "cap": false, "uses": ["S22 Capstone: Test and Show"], "ready": null}, {"n": 46, "t": "One Rule Through", "o": "Predict where a wall following rule fails", "k": "Prediction written before the run; failure point marked on the maze sketch", "dq": "Can one simple rule get us through any maze?", "cap": false, "uses": [], "ready": null}, {"n": 47, "t": "Remember the Way", "o": "Record each junction and skip paths already tried", "k": "Junction log matches the maze; repeat run is shorter", "dq": "How can a robot avoid getting lost twice?", "cap": false, "uses": [], "ready": null}, {"n": 48, "t": "Maze Practice", "o": "Identify their most common failure from logged runs", "k": "Runs on three layouts logged; top failure named", "dq": "Can we solve a maze we have never seen?", "cap": false, "uses": [], "ready": null}, {"n": 49, "t": "Capstone: Build", "o": "Bring the robot within every maze rule", "k": "Size and weight checks passed; checklist signed", "dq": "Is our robot maze ready?", "cap": true, "uses": [], "ready": null}, {"n": 50, "t": "Capstone: Maze Runs", "o": "Complete timed runs through an unseen maze", "k": "Times recorded per run", "dq": "How fast can we find the finish?", "cap": true, "uses": [], "ready": "Ready for Robotex Maze Solver"}]}]}, {"key": "arena", "name": "Arena", "comps": "Robotex Mini Sumo", "why": "", "ready": "Competition ready at S43. Module 7 continues to S50.", "mods": [{"key": "A6", "label": "Module 6", "title": "Mini Sumo, build to first bout", "full": "Module 6: Mini Sumo, build to first bout", "obj": "Learners build a legal mini sumo robot that finds, pushes and stays in the ring.", "big": "Learners understand that a sumo win comes from grip, weight and staying in the ring before speed.", "cap": "Sumo Bouts", "range": "S37 to S43", "why": "", "unlocks": "", "sessions": [{"n": 37, "t": "Fit in 10 cm", "o": "Build a layout that fits within 10 x 10 cm", "k": "Paper layout first; robot drops into the 10 cm size box", "dq": "How do we fit everything in a 10 x 10 cm square?", "cap": false, "uses": [], "ready": null}, {"n": 38, "t": "Grip and Weight", "o": "Explain how weight and grip change pushing force", "k": "Push results logged for two wheels and three weights; under 500 g on the scale", "dq": "What makes a robot hard to push?", "cap": false, "uses": [], "ready": null}, {"n": 39, "t": "Find the Opponent", "o": "Program a search that turns the robot towards an opponent", "k": "Robot faces a box placed anywhere in the ring", "dq": "How can a robot find something it can't see yet?", "cap": false, "uses": [], "ready": null}, {"n": 40, "t": "Start on the Signal", "o": "Start and stop the robot on the referee's signal", "k": "Correct start and stop on every signal", "dq": "How does every robot start fairly?", "cap": false, "uses": [], "ready": null}, {"n": 41, "t": "Ring Practice", "o": "Identify their most common loss from logged bouts", "k": "Bouts logged; top loss named with a count", "dq": "Does our robot work every time?", "cap": false, "uses": [], "ready": null}, {"n": 42, "t": "Capstone: Build", "o": "Combine edge, search and push in one program", "k": "Robot finds, pushes and stays in during a test bout", "dq": "Can our robot find, push and stay in?", "cap": true, "uses": [], "ready": null}, {"n": 43, "t": "Capstone: Sumo Bouts", "o": "Compete in bouts under official rules", "k": "Inspection passed; bout results recorded", "dq": "Can we win a bout?", "cap": true, "uses": [], "ready": "Ready for Robotex Mini Sumo"}]}, {"key": "A7", "label": "Module 7", "title": "Mini Sumo strategy", "full": "Module 7: Mini Sumo strategy", "obj": "Learners order behaviours and plan matches so the robot wins consistently under refereed rules.", "big": "Learners understand that behaviour order decides a bout as much as hardware.", "cap": "Round Robin", "range": "S44 to S50", "why": "", "unlocks": "", "sessions": [{"n": 44, "t": "The Wedge", "o": "Choose a blade angle using test evidence", "k": "Three angles tested; choice written with results", "dq": "How can we get under the opponent?", "cap": false, "uses": [], "ready": null}, {"n": 45, "t": "Edge Beats Attack", "o": "Order behaviours so staying in the ring overrides attack", "k": "Robot never leaves the ring while chasing in five tests", "dq": "What should the robot do first when two things happen?", "cap": false, "uses": [], "ready": null}, {"n": 46, "t": "Plan the Match", "o": "Choose an opening move using test evidence", "k": "Three openings tested; choice written with results", "dq": "How should we open against an unknown robot?", "cap": false, "uses": [], "ready": null}, {"n": 47, "t": "Read the Referee", "o": "Referee a bout using the official rules", "k": "Calls match the checklist; three ways to lose named", "dq": "What loses a bout besides being pushed out?", "cap": false, "uses": [], "ready": null}, {"n": 48, "t": "Ring Practice", "o": "Track their win rate across refereed bouts", "k": "Win rate recorded; one fix made for the top loss", "dq": "Can we win again and again?", "cap": false, "uses": [], "ready": null}, {"n": 49, "t": "Capstone: Build", "o": "Make the robot inspection compliant", "k": "Size, weight and start checks passed", "dq": "Is our robot tournament ready?", "cap": true, "uses": [], "ready": null}, {"n": 50, "t": "Capstone: Round Robin", "o": "Explain their robot's consistency using round robin results", "k": "Results table complete; one reason given for each loss", "dq": "Which robot is most consistent?", "cap": true, "uses": [], "ready": null}]}]}, {"key": "fire", "name": "Firefighter", "comps": "Robotex Girls Firefighter", "why": "", "ready": "Competition ready at S50.", "mods": [{"key": "FF6", "label": "Module 6", "title": "Firefighter, one candle", "full": "Module 6: Firefighter, one candle", "obj": "Learners build a robot that finds and puts out one candle without touching it.", "big": "Learners understand that a flame sensor sees heat light, and bright light can fool it.", "cap": "One Candle", "range": "S37 to S43", "why": "", "unlocks": "", "sessions": [{"n": 37, "t": "Sense the Flame", "o": "Describe how flame readings change with distance and angle", "k": "Readings at set positions logged; candle safety rules followed", "dq": "How can a robot see a flame?", "cap": false, "uses": [], "ready": null}, {"n": 38, "t": "Turn to the Target", "o": "Program the robot to turn towards the strongest reading", "k": "Robot faces the candle from three start angles", "dq": "How can a robot turn towards a flame?", "cap": false, "uses": [], "ready": null}, {"n": 39, "t": "Switch the Fan", "o": "Switch the fan safely from the Nano", "k": "Fan runs on command with the guard fitted", "dq": "How can the Nano power a fan?", "cap": false, "uses": [], "ready": null}, {"n": 40, "t": "Stop at the Circle", "o": "Stop inside the circle rule and fire the fan", "k": "Stops within the rule in three runs", "dq": "How does the robot know it's close enough?", "cap": false, "uses": [], "ready": null}, {"n": 41, "t": "Field Practice", "o": "Identify their most common failure from logged attempts", "k": "Attempts logged; top failure named", "dq": "Does it work every time?", "cap": false, "uses": [], "ready": null}, {"n": 42, "t": "Capstone: Build", "o": "Combine all steps in one program", "k": "Robot starts on its button and completes one attempt", "dq": "Can we put out one candle?", "cap": true, "uses": [], "ready": null}, {"n": 43, "t": "Capstone: One Candle", "o": "Put out a candle without touching it under timed conditions", "k": "Timed attempts recorded; no touches", "dq": "Can we put it out without touching it?", "cap": true, "uses": [], "ready": null}]}, {"key": "FF7", "label": "Module 7", "title": "Firefighter, full field", "full": "Module 7: Firefighter, full field", "obj": "Learners build a robot that finds and puts out four candles among walls within three minutes.", "big": "Learners understand that search strategy decides the score once one candle is reliable.", "cap": "Four Candles", "range": "S44 to S50", "why": "", "unlocks": "", "sessions": [{"n": 44, "t": "Around the Walls", "o": "Navigate around walls on the 4WD platform", "k": "Reaches a candle behind a wall; 3S pack checks done by the teacher before the first run", "dq": "How can the robot reach a candle behind a wall?", "cap": false, "uses": [], "ready": null}, {"n": 45, "t": "Search the Field", "o": "Program a search that finds candles out of view", "k": "Finds a hidden candle from the start zone", "dq": "How can the robot find candles it can't see?", "cap": false, "uses": [], "ready": null}, {"n": 46, "t": "Reach the Tall Candle", "o": "Tilt the sensor and fan to reach taller candles", "k": "Tall candle out in two of three attempts", "dq": "How can the robot reach a taller flame?", "cap": false, "uses": [], "ready": null}, {"n": 47, "t": "Beat False Flames", "o": "Reduce false detections under bright light", "k": "False triggers counted before and after tuning", "dq": "Why does bright light fool our sensor?", "cap": false, "uses": [], "ready": null}, {"n": 48, "t": "Field Practice", "o": "Log full field attempts and name the top failure", "k": "Full attempts logged", "dq": "Can we clear the field every time?", "cap": false, "uses": [], "ready": null}, {"n": 49, "t": "Capstone: Build", "o": "Bring the robot within every firefighter rule", "k": "Inspection checklist passed", "dq": "Can we clear four candles in three minutes?", "cap": true, "uses": [], "ready": null}, {"n": 50, "t": "Capstone: Four Candles", "o": "Compete in timed rounds on the full field", "k": "Candles out and times recorded", "dq": "How many candles can we put out?", "cap": true, "uses": [], "ready": "Ready for Robotex Girls Firefighter"}]}]}, {"key": "innov", "name": "Innovators", "comps": "WRO Future Innovators, Junior", "why": "", "ready": "Competition ready at S50.", "mods": [{"key": "I6", "label": "Module 6", "title": "Innovators, problem to pitch", "full": "Module 6: Innovators, problem to pitch", "obj": "Learners define a real community problem on the season theme and pitch a robotics idea for it.", "big": "Learners understand that a good solution starts from what users say they need.", "cap": "Pitch", "range": "S37 to S43", "why": "", "unlocks": "", "sessions": [{"n": 37, "t": "Find a Problem", "o": "List community problems from at least two interviews", "k": "Interview notes in the Makerbook; WRO teams of 2 to 3 formed (decision pending)", "dq": "What problem in our community could a robot help with?", "cap": false, "uses": [], "ready": null}, {"n": 38, "t": "Define It", "o": "Write a problem statement using who, what, where and why", "k": "4Ws canvas complete and signed by everyone", "dq": "Who, what, where and why?", "cap": false, "uses": [], "ready": null}, {"n": 39, "t": "Ideas on Paper", "o": "Select one idea from their sketches with reasons", "k": "Three sketches each; vote reasons written", "dq": "What are all the ways a robot could help?", "cap": false, "uses": [], "ready": null}, {"n": 40, "t": "Input, Process, Output", "o": "Map what their robot senses, decides and does", "k": "Map names a real sensor and output from the set", "dq": "What does our robot sense, decide and do?", "cap": false, "uses": [], "ready": null}, {"n": 41, "t": "Studio Time", "o": "Revise their plan using another team's feedback", "k": "Two changes made and marked on the plan", "dq": "What's still unclear in our plan?", "cap": false, "uses": [], "ready": null}, {"n": 42, "t": "Capstone: Build", "o": "Build a labelled cardboard model someone else understands", "k": "Another team explains the model back correctly", "dq": "Can someone else understand our idea?", "cap": true, "uses": [], "ready": null}, {"n": 43, "t": "Capstone: Pitch", "o": "Deliver a 3 minute pitch", "k": "Pitch within time; feedback recorded", "dq": "Would a judge back our idea?", "cap": true, "uses": [], "ready": null}]}, {"key": "I7", "label": "Module 7", "title": "Innovators, prototype to demo", "full": "Module 7: Innovators, prototype to demo", "obj": "Learners build, test and demonstrate a working prototype to a jury.", "big": "Learners understand that user testing changes a design more than the team's own opinion.", "cap": "Prototype Demo", "range": "S44 to S50", "why": "", "unlocks": "", "sessions": [{"n": 44, "t": "Build the Core", "o": "Get their core sensor and output working", "k": "Core function works on demand", "dq": "What is the one thing it must do?", "cap": false, "uses": [], "ready": null}, {"n": 45, "t": "Test with Users", "o": "Record what a real user wants changed", "k": "User feedback logged in the user's words", "dq": "What do real users think?", "cap": false, "uses": [], "ready": null}, {"n": 46, "t": "Connect It", "o": "Send data from the ESP32 to a phone or display", "k": "Data appears on the LCD, or on a phone (Assumption A)", "dq": "How can our robot share what it knows?", "cap": false, "uses": [], "ready": null}, {"n": 47, "t": "Redesign", "o": "Make one change based on feedback and retest", "k": "Change traced to a user comment; retest recorded", "dq": "What one change would help most?", "cap": false, "uses": [], "ready": null}, {"n": 48, "t": "Studio Time", "o": "Move the prototype onto MDF so it survives handling", "k": "Prototype survives a carry and drop check", "dq": "How do we make it robust?", "cap": false, "uses": [], "ready": null}, {"n": 49, "t": "Capstone: Build", "o": "Prepare a booth where every member explains one part", "k": "Script assigns every member a part", "dq": "Is our booth ready?", "cap": true, "uses": [], "ready": null}, {"n": 50, "t": "Capstone: Prototype Demo", "o": "Answer jury questions about how the prototype solves the problem", "k": "Every member answers at least one question", "dq": "Does our robot solve the problem?", "cap": true, "uses": [], "ready": "Ready for WRO Future Innovators"}]}]}], "m8": {"key": "M8", "label": "Module 8", "title": "Competition ready (everyone, residential bootcamp)", "full": "Module 8: Competition ready (everyone, residential bootcamp)", "obj": "Learners make the robot inspection ready, reliable and explainable under real conditions.", "big": "Learners understand that competitions reward the robot that works every time, explained by the team that built it.", "cap": "Mock Competition and Public Showcase", "range": "S51 to S57", "why": "", "unlocks": "", "sessions": [{"n": 51, "t": "Read the Rulebook", "o": "Write an inspection checklist from their category rules", "k": "Every checklist line traced to a rule", "dq": "What will judges check before we even run?", "cap": false, "uses": [], "ready": null}, {"n": 52, "t": "Make It Permanent", "o": "Solder a reliable joint safely under supervision", "k": "Joints pass a continuity check; safety glasses worn", "dq": "How do we make wiring that survives competition day?", "cap": false, "uses": [], "ready": null}, {"n": 53, "t": "Twenty Runs", "o": "Work out their success rate from twenty runs", "k": "Rate calculated; top failure fixed and retested", "dq": "How reliable is our robot, really?", "cap": false, "uses": [], "ready": null}, {"n": 54, "t": "Tell Our Story", "o": "Answer judge questions about their design choices", "k": "Notebook complete; each member answers a mock question", "dq": "How do we explain what we built and why?", "cap": false, "uses": [], "ready": null}, {"n": 55, "t": "Capstone: Build", "o": "Pack the robot, spares and kit list for competition day", "k": "Packing list checked off; roles assigned", "dq": "Is our robot inspection ready?", "cap": true, "uses": [], "ready": null}, {"n": 56, "t": "Capstone: Mock Competition", "o": "Complete inspection, rounds and judging under real conditions", "k": "Scores recorded for every stage", "dq": "Can we perform under real conditions?", "cap": true, "uses": [], "ready": null}, {"n": 57, "t": "Public Showcase", "o": "Explain their own contribution to a public jury", "k": "Every member speaks on their part; next season goal written", "dq": "What did we build, and what's next?", "cap": true, "uses": [], "ready": null}]}};
+
+/* ---------- timeline ---------- */
+(function(){
+  const t0 = Date.UTC(2026,9,1), t1 = Date.UTC(2027,7,1);
+  const pct = d => ((d - t0) / (t1 - t0) * 100);
+  const D = (y,m,d) => Date.UTC(y,m-1,d);
+  const months = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul'];
+  const rows = [
+    ['group','Programme'],
+    ['Foundation','Modules 1 to 5, S1 to S36','found',D(2026,10,1),D(2027,2,4),'Foundation, 18 weeks'],
+    ['Selection','Capstone evidence reviewed','gate',D(2027,2,4),D(2027,2,11),''],
+    ['Module 6','Track build, S37 to S43','track',D(2027,2,4),D(2027,3,4),'M6'],
+    ['Module 7','Track depth, S44 to S50','track',D(2027,2,25),D(2027,3,25),'M7'],
+    ['group','Competition windows'],
+    ['WRO regionals','Future Innovators','comp',D(2027,4,1),D(2027,7,1),'April to June'],
+    ['WRO nationals','Future Innovators','comp',D(2027,5,1),D(2027,8,1),'May to July'],
+    ['Robotex regionals','All Robotex categories','comp',D(2027,5,1),D(2027,7,1),'Before July'],
+    ['Robotex nationals','All Robotex categories','comp',D(2027,7,1),D(2027,8,1),'July']
+  ];
+  const el = document.getElementById('tl');
+  let h = '<div></div><div class="tl-months">' + months.map(m=>`<span>${m}</span>`).join('') + '</div>';
+  rows.forEach(r=>{
+    if(r[0]==='group'){ h += `<div class="tl-group">${r[1]}</div>`; return; }
+    const [lab,sub,cls,a,b,txt] = r;
+    const l = pct(a), w = Math.max(pct(b)-l, 2.2);
+    h += `<div class="tl-label">${lab}<small>${sub}</small></div><div class="tl-track"><div class="bar ${cls}" style="left:${l}%;width:${w}%" title="${txt}">${txt}</div></div>`;
+  });
+  el.innerHTML = h;
+})();
+
+/* ---------- journey map ---------- */
+const STAGES = [];
+(function(){
+  const W = 2030, H = 600, Y = 300;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Learner journey from baseline through Foundation, a selection gate, four competition tracks, Module 8 and competition day">`;
+  const wires = [], nodes = [];
+  const rect = (id,cls,x,y,w,h,code,lab,sub,r=12) => {
+    STAGES.push(id);
+    nodes.push(`<g class="st ${cls}" data-id="${id}" tabindex="0" role="button" aria-label="${lab}. ${sub}">
+      <rect class="shape" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" stroke-width="2"/>
+      <text class="code t-muted" x="${x+14}" y="${y+22}">${code}</text>
+      ${lab.includes('|') ? `<text class="lbl t-ink" x="${x+14}" y="${y+40}">${lab.split('|')[0]}</text><text class="lbl t-ink" x="${x+14}" y="${y+56}">${lab.split('|')[1]}</text>` : `<text class="lbl t-ink" x="${x+14}" y="${y+44}">${lab}</text>`}
+      <text class="sub t-muted" x="${x+14}" y="${y+(lab.includes('|')?76:64)}">${sub}</text></g>`);
+  };
+  // baseline
+  rect('base','s-base',20,Y-44,150,88,'ENTRY','Baseline','Interest and skills');
+  // foundation
+  const fx = [220,390,560,730,900], fw = 150;
+  DATA.found.forEach((m,i)=>{
+    rect(m.key,'s-found',fx[i],Y-44,fw,88,m.label.toUpperCase(), (q=>{const w=q.split(' ');const h=Math.ceil(w.length/2);return w.slice(0,h).join(' ')+'|'+w.slice(h).join(' ');})(m.full.split(': ')[1]), m.range);
+  });
+  wires.push(`<path class="wire-f" d="M170 ${Y} H1085"/>`);
+  // gate
+  STAGES.push('gate');
+  nodes.push(`<g class="st s-gate" data-id="gate" tabindex="0" role="button" aria-label="Selection gate">
+    <path class="shape" d="M1120 ${Y-52} L1172 ${Y} L1120 ${Y+52} L1068 ${Y} Z" stroke-width="2"/>
+    <text class="code" x="1120" y="${Y+4}" text-anchor="middle" style="fill:var(--surface)">GATE</text></g>`);
+  nodes.push(`<text class="code t-muted" x="1120" y="${Y-64}" text-anchor="middle">SELECTION ON CAPSTONES</text>`);
+  // exit
+  wires.push(`<path class="wire-x" d="M1120 ${Y+52} V${H-70} H1060"/>`);
+  rect('exit','s-exit',880,H-110,180,80,'EXIT AFTER S36','Certificate','Foundation complete');
+  // tracks
+  const lanes = [70,190,410,530], tx6 = 1230, tx7 = 1440, tw = 170;
+  const M8X = 1650, CX = 1650;
+  DATA.tracks.forEach((t,i)=>{
+    const y = lanes[i];
+    wires.push(`<path class="wire-t" d="M1172 ${Y} C1200 ${Y}, 1200 ${y}, 1230 ${y}"/>`);
+    wires.push(`<path class="wire-t" d="M${tx6+tw} ${y} H${tx7}"/>`);
+    rect(t.key,'s-track',tx6,y-34,tw,68,t.name.toUpperCase()+' · M6',{race:'Line Follower',arena:'Build to first bout',fire:'One candle',innov:'Problem to pitch'}[t.key], 'S37 to S43');
+    const m7 = t.mods[1];
+    STAGES.push(t.key+'7');
+    const lab7 = {race:'Folk Race or Maze',arena:'Mini Sumo strategy',fire:'Full field',innov:'Prototype to demo'}[t.key];
+    nodes.push(`<g class="st s-track" data-id="${t.key}" tabindex="0" role="button" aria-label="${t.name} Module 7">
+      <rect class="shape" x="${tx7}" y="${y-34}" width="${tw}" height="68" rx="12" stroke-width="2"/>
+      <text class="code t-muted" x="${tx7+14}" y="${y-12}">${t.name.toUpperCase()} · M7</text>
+      <text class="lbl t-ink" x="${tx7+14}" y="${y+10}">${lab7}</text>
+      <text class="sub t-muted" x="${tx7+14}" y="${y+28}">S44 to S50</text></g>`);
+    // ready flags
+    const early = (t.key==='race'||t.key==='arena');
+    const fxp = early ? tx6+tw+10 : tx7+tw+10;
+    nodes.push(`<g><path class="flag" d="M${fxp} ${y-28} v26 M${fxp} ${y-28} l14 5 l-14 5 z" stroke="var(--ready)" stroke-width="2"/>
+      <text class="flag-t" x="${fxp+2}" y="${y+14}">${early?'S43':'S50'}</text><text class="flag-t" x="${fxp+2}" y="${y+27}">ready</text></g>`);
+    // leave for competition
+    wires.push(`<path class="wire-r" d="M${tx7+tw} ${y} C${M8X-40} ${y}, ${M8X-40} ${Y}, ${M8X} ${Y}"/>`);
+  });
+  rect('m8','s-m8',M8X,Y-44,150,88,'MODULE 8','Bootcamp','1 to 2 days, flexible');
+  wires.push(`<path class="wire-f" d="M${M8X+150} ${Y} H${M8X+180}"/>`);
+  rect('comp','s-comp',M8X+180,Y-44,170,88,'EXIT','Competition','Robotex or WRO');
+  s += wires.join('') + nodes.join('') + '</svg>';
+  document.getElementById('map').innerHTML = s;
+})();
+
+/* ---------- detail ---------- */
+const esc = t => String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function chain(sessions, kind){
+  return `<div class="chain ${kind}">` + sessions.map((s,i)=>`
+    ${i?'<span class="arrow" aria-hidden="true"></span>':''}
+    <button class="node${s.cap?' cap':''}" aria-expanded="false">
+      <span class="n">S${s.n}</span>
+      ${s.cap?'<span class="tag">Progress marker</span>':''}
+      <span class="nt">${esc(s.t.replace('Capstone: ',''))}</span>
+      <span class="no">${esc(s.o)}</span>
+      ${s.uses.map(u=>`<span class="uses">Uses ${esc(u.replace('Capstone: ',''))}</span>`).join('')}
+      ${s.ready?`<span class="rd">⚑ ${esc(s.ready)}</span>`:''}
+      <span class="more" hidden><b>Driving question</b><br>${esc(s.dq)}<br><b>How we will know</b><br>${esc(s.k)}</span>
+    </button>`).join('') + `</div>`;
+}
+function rationale(items, kind){
+  return `<div class="rationale ${kind}">` + items.filter(x=>x[1]).map(([k,v])=>`<div><b>${k}</b><p>${esc(v)}</p></div>`).join('') + `</div>`;
+}
+const VIEWS = {};
+DATA.found.forEach(m=>{
+  VIEWS[m.key] = {tab:m.label, html:`
+    <div class="d-head"><div><span class="eyebrow">${m.label} · Foundation · ${m.range}</span><h2>${esc(m.full.split(': ')[1]||m.full)}</h2></div>
+    <div><span class="pill">${m.weeks}</span> <span class="pill">${m.dates}, tentative</span></div></div>
+    ${rationale([['Module objective',m.obj],['Big idea',m.big],['Capstone',m.cap]],'f')}
+    <div class="chain-head"><h3>Learning graph</h3><p class="hint">Sessions in order. Select a session for its driving question and evidence. The capstone is the progress marker.</p></div>
+    ${chain(m.sessions,'')}`};
+});
+DATA.tracks.forEach(t=>{
+  VIEWS[t.key] = {tab:t.name+' track', html:`
+    <div class="d-head"><div><span class="eyebrow">Competition track · Modules 6 and 7 · S37 to S50</span><h2>${t.name}</h2></div>
+    <div><span class="pill t">Weeks 19 to 25</span> <span class="pill r">${esc(t.ready)}</span></div></div>
+    ${rationale([['Competition',t.comps],['When a team can leave',t.ready]],'t')}
+    ${t.mods.map(m=>`<div class="subchain"><div class="chain-head"><h3>${m.label}: ${esc(m.full.split(': ').slice(1).join(': ')||m.full)}</h3><p class="hint">${esc(m.obj)}</p></div>${chain(m.sessions,'t')}</div>`).join('')}`};
+});
+const m8 = DATA.m8;
+VIEWS.m8 = {tab:'Module 8', html:`
+  <div class="d-head"><div><span class="eyebrow">Module 8 · everyone heading to competition · ${m8.range}</span><h2>Competition ready</h2></div>
+  <div><span class="pill">1 to 2 days, flexible</span></div></div>
+  ${rationale([['Format','A residential bootcamp of 1 to 2 days, flexible.'],['Module objective',m8.obj],['Big idea',m8.big],['Capstone',m8.cap]],'f')}
+  <div class="chain-head"><h3>Learning graph</h3><p class="hint">Sessions in order. The capstones are the progress markers.</p></div>
+  ${chain(m8.sessions,'')}`};
+VIEWS.base = {tab:'Baseline', html:`
+  <div class="d-head"><div><span class="eyebrow">Entry</span><h2>Baseline</h2></div></div>
+  ${rationale([['What it does','The baseline sorts learners and brings in interested learners who hold the starting skills.'],['What comes next','Foundation, starting with Module 1, Session 1.']],'f')}`};
+VIEWS.gate = {tab:'Selection gate', html:`
+  <div class="d-head"><div><span class="eyebrow">After Session 36 · early February 2027, tentative</span><h2>Selection gate</h2></div></div>
+  ${rationale([['How learners are selected','The Foundation capstones are the progress tracker. Learners are selected on their capstone performance.'],['Where selected learners go','Competition preparation for the competition they chose.'],['Everyone else','Exits with a certificate.']],'f')}
+  <div class="chain-head"><h3>The five progress markers</h3></div>
+  ${chain(DATA.found.map(m=>m.sessions[m.sessions.length-1]),'')}`};
+VIEWS.exit = {tab:'Certificate', html:`
+  <div class="d-head"><div><span class="eyebrow">Exit after Session 36</span><h2>Certificate</h2></div></div>
+  ${rationale([['Who','Learners who complete Foundation and are not selected for a competition track.'],['What they leave with','A certificate.']],'f')}`};
+VIEWS.comp = {tab:'Competition', html:`
+  <div class="d-head"><div><span class="eyebrow">Exit to competition · tentative windows</span><h2>Competition day</h2></div></div>
+  ${rationale([['Robotex','Line Follower, Folk Race Intermediate, Maze Solver, Mini Sumo, Girls Firefighter Intermediate. Regionals before July, nationals in July.'],['WRO','Future Innovators, Junior. Regionals April to June, nationals May to July.'],['Who arrives here','Teams whose robots meet the competition minimum: S43 for Line Follower and Mini Sumo, S50 for Folk Race, Maze Solver, Girls Firefighter and Future Innovators.']],'f')}`};
+
+const ORDER = ['base','M1','M2','M3','M4','M5','gate','exit','race','arena','fire','innov','m8','comp'];
+const tabs = document.getElementById('tabs');
+tabs.innerHTML = ORDER.map(k=>`<button class="tab" data-id="${k}" aria-pressed="false">${VIEWS[k].tab}</button>`).join('');
+function show(id){
+  const v = VIEWS[id]; if(!v) return;
+  document.getElementById('detail').innerHTML = v.html;
+  tabs.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed', b.dataset.id===id));
+  document.querySelectorAll('.st').forEach(g=>g.classList.toggle('sel', g.dataset.id===id));
+  document.querySelectorAll('.node').forEach(n=>n.addEventListener('click',()=>{
+    const open = n.getAttribute('aria-expanded')==='true';
+    n.setAttribute('aria-expanded', !open); n.querySelector('.more').hidden = open;
+  }));
+}
+tabs.addEventListener('click',e=>{const b=e.target.closest('.tab'); if(b) show(b.dataset.id);});
+document.getElementById('map').addEventListener('click',e=>{const g=e.target.closest('.st'); if(g){show(g.dataset.id); document.getElementById('detail-sec').scrollIntoView({behavior:'smooth',block:'start'});}});
+document.getElementById('map').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const g=e.target.closest('.st'); if(g){e.preventDefault(); show(g.dataset.id);}}});
+show('M1');
+</script>
+
+</body>
+</html>
