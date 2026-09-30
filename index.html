@@ -188,6 +188,36 @@ section{display:flex;flex-direction:column;gap:14px}
 .chip.up{border-color:var(--ink)} .chip.dn{border-color:var(--ready);color:var(--ready)}
 .legend i.up{border-top:2px solid var(--ink)} .legend i.dn{border-top:2px solid var(--ready)} .legend i.xx{border-top:1.5px dashed var(--muted)}
 .lg-info .none{color:var(--muted);font-size:13.5px;margin:0}
+.lg-gate{cursor:pointer}
+.lg-gate path{fill:var(--ink)}
+.lg-gate text{fill:var(--surface);font-family:var(--mono);font-size:10.5px;letter-spacing:.06em}
+.lg-gcap{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;fill:var(--muted)}
+.lg-card{cursor:pointer}
+.lg-card rect.bg{fill:var(--surface);stroke:var(--track);stroke-width:1.5;stroke-dasharray:5 3;transition:opacity .15s ease}
+.lg-card.on rect.bg{fill:var(--track-soft);stroke-dasharray:none;stroke-width:2.5}
+.lg-card.off rect.bg,.lg-card.off text{opacity:.45}
+.lg-card.fed rect.bg{stroke:var(--ready);stroke-width:2.5;stroke-dasharray:none}
+.lg-card:focus{outline:none}
+.lg-card:focus-visible rect.bg,.lg-card:hover rect.bg{stroke-width:2.5}
+.lg-wrap svg{min-width:1640px}
+.lg-card .cn{font-family:var(--display);font-weight:600;font-size:14px;fill:var(--ink)}
+.lg-card .cc{font-family:var(--body);font-size:11.5px;fill:var(--muted)}
+.lg-card .cf{font-family:var(--mono);font-size:10.5px;fill:var(--track)}
+.lg-card.fed .cf{fill:var(--ready)}
+.lg-card .gb rect{fill:var(--girls)} .lg-card .gb text{fill:var(--surface);font-family:var(--mono);font-size:9.5px;letter-spacing:.05em}
+.lg-link{fill:none;stroke:var(--track);stroke-width:2.5}
+.lg-link.f{stroke:var(--found)}
+.lg-ph rect{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:6 5}
+.lg-ph text{fill:var(--muted);font-family:var(--body);font-size:15px}
+.lg-ph .big{font-family:var(--display);font-weight:600;font-size:19px;fill:var(--ink)}
+.lg-opt{cursor:pointer}
+.lg-opt rect{fill:var(--surface);stroke:var(--track);stroke-width:1.2}
+.lg-opt.on rect{fill:var(--track)}
+.lg-opt text{font-family:var(--mono);font-size:10.5px;fill:var(--track)}
+.lg-opt.on text{fill:var(--surface)}
+.lg-opt:focus{outline:none} .lg-opt:focus-visible rect{stroke-width:2.5}
+.lg-svg.on .lg-card rect.bg,.lg-svg.on .lg-card text,.lg-svg.on .lg-gate,.lg-svg.on .lg-link{opacity:.35}
+.lg-svg.on .lg-card.fed rect.bg,.lg-svg.on .lg-card.fed text,.lg-svg.on .lg-card.on rect.bg,.lg-svg.on .lg-card.on text{opacity:1}
 @media (max-width:520px){.node{width:100%}.arrow{display:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -221,7 +251,6 @@ section{display:flex;flex-direction:column;gap:14px}
 
 <section aria-labelledby="lg-h">
   <div class="sec-head"><h2 id="lg-h">Learning graph</h2><p class="note"> Session Connects </p></div>
-  <div class="lg-controls" id="lg-tracks" role="group" aria-label="Choose a competition track"></div>
   <div class="lg-wrap" id="lg"></div>
   <div class="legend"><span><i></i>Builds on, Foundation</span><span><i class="t"></i>Builds on, track</span><span><i class="xx"></i>Link across modules</span><span><i class="up"></i>Needed first</span><span><i class="dn"></i>Unlocked next</span></div>
   <div class="lg-info" id="lg-info" aria-live="polite"></div>
@@ -471,85 +500,167 @@ show('M1');
 
 /* ---------- learning graph ---------- */
 (function(){
-  const NW = 168, NH = 46, GX = 64, GY = 10, TOP = 58, LEFT = 20;
-  const wrap = document.getElementById('lg'), info = document.getElementById('lg-info'), ctr = document.getElementById('lg-tracks');
-  let view = LG_VIEWS[0], selId = null, POS = {}, EDGES = [];
-  ctr.innerHTML = '<span class="lab">Show track</span>' + LG_VIEWS.map((v,i)=>`<button class="tab" data-v="${v.id}" aria-pressed="${i===0}">${v.label}${v.girls?'<span class="gdot" aria-label="girls\' teams only"></span>':''}</button>`).join('');
-  function columns(v){
-    const t6 = trackByKey(v.m6[0]).mods[v.m6[1]], t7 = trackByKey(v.m7[0]).mods[v.m7[1]];
-    return [...DATA.found.map(m=>({code:m.label.toUpperCase(), title:m.title, ids:m.sessions.map(s=>'f'+s.n)})),
-      {code:'MODULE 6 · '+trackByKey(v.m6[0]).name.toUpperCase(), title:t6.title, ids:t6.sessions.map(s=>v.m6[2]+s.n)},
-      {code:'MODULE 7 · '+trackByKey(v.m7[0]).name.toUpperCase(), title:t7.title.replace(' (replaces Folk Race for teams that choose it)',''), ids:t7.sessions.map(s=>v.m7[2]+s.n)},
-      {code:'MODULE 8', title:'Competition ready', ids:DATA.m8.sessions.map(s=>'m'+s.n)}];
+  const NW = 168, NH = 46, GX = 64, GY = 10, TOP = 70, LEFT = 20, CH = 62, CG = 10;
+  const wrap = document.getElementById('lg'), info = document.getElementById('lg-info');
+  const TRACKS = [
+    {key:'race', name:'Race', comp:'Robotex Line Follower, Folk Race, Maze Solver', short:'Robotex, 3 categories', pre:['r','k','z']},
+    {key:'arena', name:'Arena', comp:'Robotex Mini Sumo', short:'Robotex Mini Sumo', pre:['a']},
+    {key:'fire', name:'Firefighter', comp:'Robotex Girls Firefighter', short:'Girls\' teams only', pre:['x'], girls:true},
+    {key:'innov', name:'Innovators', comp:'WRO Future Innovators, Junior', short:'WRO Future Innovators', pre:['i']}
+  ];
+  let track = null, raceOpt = 'folk', selId = null, POS = {}, EDGES = [], GEO = {W:1, gateX:0};
+  const viewFor = () => !track ? null : LG_VIEWS.find(v=>v.id===(track==='race' ? 'race-'+raceOpt : track));
+  // union of every track's edges, used to show which tracks a Foundation session feeds
+  const ALL = [];
+  LG_VIEWS.forEach(v=>Object.keys(NODES).forEach(id=>{
+    const p = id[0]; const inView = p==='f' || p==='m' || p===v.m6[2] || p===v.m7[2];
+    if(inView) preFor(id, v).forEach(q=>{ if(NODES[q] && !ALL.some(e=>e.from===q&&e.to===id)) ALL.push({from:q,to:id}); });
+  }));
+  function reach(id, edges, dir){
+    const seen = new Set(), st = [id];
+    while(st.length){ const c = st.pop(); edges.forEach(e=>{ const n = dir==='up' ? (e.to===c?e.from:null) : (e.from===c?e.to:null); if(n && !seen.has(n)){ seen.add(n); st.push(n); } }); }
+    return seen;
   }
-  function wrapText(t, max){ const w = t.split(' '); const lines = ['']; w.forEach(x=>{ const cur = lines[lines.length-1]; if((cur+' '+x).trim().length>max && cur) lines.push(x); else lines[lines.length-1] = (cur+' '+x).trim(); }); return lines.slice(0,2); }
+  const feeds = id => { const dn = reach(id, ALL, 'dn'); return TRACKS.filter(t=>[...dn].some(x=>t.pre.includes(x[0]))).map(t=>t.key); };
+  const foundCount = t => new Set(Object.values(NODES).filter(n=>t.pre.includes(n.track)).flatMap(n=>n.pre.filter(p=>p[0]==='f'))).size;
+  function wrapText(t, max){ const w = t.split(' '); const L = ['']; w.forEach(x=>{ const c = L[L.length-1]; if((c+' '+x).trim().length>max && c) L.push(x); else L[L.length-1] = (c+' '+x).trim(); }); return L.slice(0,2); }
+
   function draw(){
-    const cols = columns(view); POS = {}; EDGES = [];
-    const maxRows = Math.max(...cols.map(c=>c.ids.length));
-    const W = LEFT*2 + cols.length*NW + (cols.length-1)*GX, H = TOP + maxRows*(NH+GY) + 20;
-    cols.forEach((c,ci)=>c.ids.forEach((id,ri)=>{ POS[id] = {x:LEFT+ci*(NW+GX), y:TOP+ri*(NH+GY), ci}; }));
-    let heads = '', edges = '', nodes = '';
-    cols.forEach((c,ci)=>{ const x = LEFT+ci*(NW+GX); heads += `<text class="lg-col" x="${x}" y="20">${esc(c.code)}</text><text class="lg-colt" x="${x}" y="38">${esc(c.title.length>24?c.title.slice(0,23)+'…':c.title)}</text>`; });
+    const v = viewFor(); POS = {}; EDGES = [];
+    const found = DATA.found.map(m=>({code:m.label.toUpperCase(), title:m.title, ids:m.sessions.map(s=>'f'+s.n)}));
+    let right = [];
+    if(v){
+      const t6 = trackByKey(v.m6[0]).mods[v.m6[1]], t7 = trackByKey(v.m7[0]).mods[v.m7[1]];
+      right = [
+        {code:'MODULE 6 · '+trackByKey(v.m6[0]).name.toUpperCase(), title:t6.title, ids:t6.sessions.map(s=>v.m6[2]+s.n)},
+        {code:'MODULE 7 · '+trackByKey(v.m7[0]).name.toUpperCase(), title:t7.title, ids:t7.sessions.map(s=>v.m7[2]+s.n), toggle: track==='race'},
+        {code:'MODULE 8 · EVERYONE', title:'Competition ready', ids:DATA.m8.sessions.map(s=>'m'+s.n)}];
+    }
+    const colX = i => LEFT + i*(NW+GX);
+    const gateX = colX(5), rightStart = 6, nCols = 9;
+    const maxRows = Math.max(...found.map(c=>c.ids.length), ...right.map(c=>c.ids.length));
+    const W = LEFT*2 + nCols*NW + (nCols-1)*GX;
+    const gateH = 64 + TRACKS.length*(CH+CG);
+    const H = TOP + Math.max(maxRows*(NH+GY), gateH) + 20; GEO = {W, gateX};
+    found.forEach((c,ci)=>c.ids.forEach((id,ri)=>POS[id] = {x:colX(ci), y:TOP+ri*(NH+GY), ci}));
+    right.forEach((c,k)=>c.ids.forEach((id,ri)=>POS[id] = {x:colX(rightStart+k), y:TOP+ri*(NH+GY), ci:rightStart+k}));
+    let heads = '', edges = '', nodes = '', deco = '';
+    const head = (x, code, title) => `<text class="lg-col" x="${x}" y="22">${esc(code)}</text>` + (title ? `<text class="lg-colt" x="${x}" y="42">${esc(title.length>24?title.slice(0,23)+'…':title)}</text>` : '');
+    found.forEach((c,ci)=>heads += head(colX(ci), c.code, c.title));
+    heads += head(gateX, 'AFTER S36', 'Selection gate');
+    right.forEach((c,k)=>{
+      const x = colX(rightStart+k);
+      if(c.toggle){
+        heads += `<text class="lg-col" x="${x}" y="22">${esc(c.code)}</text>`;
+        [['folk','Folk Race',0,78],['maze','Maze Solver',84,84]].forEach(([id,lab,dx,w])=>{
+          heads += `<g class="lg-opt${raceOpt===id?' on':''}" data-opt="${id}" tabindex="0" role="button" aria-pressed="${raceOpt===id}"><rect x="${x+dx}" y="30" width="${w}" height="20" rx="10"/><text x="${x+dx+w/2}" y="44" text-anchor="middle">${lab}</text></g>`;
+        });
+      } else heads += head(x, c.code, c.title);
+    });
+    // gate diamond and track cards
+    const gy = TOP + 26, gcx = gateX + NW/2;
+    deco += `<g class="lg-gate" data-gate="1" tabindex="0" role="button" aria-label="Selection gate"><path d="M${gcx} ${gy-26} L${gcx+30} ${gy} L${gcx} ${gy+26} L${gcx-30} ${gy} Z"/><text x="${gcx}" y="${gy+4}" text-anchor="middle">GATE</text></g>`;
+    deco += `<text class="lg-gcap" x="${gcx}" y="${gy+44}" text-anchor="middle">CHOOSE A TRACK</text>`;
+    const s36 = POS['f36'];
+    deco += `<path class="lg-link f" d="M${s36.x+NW} ${s36.y+NH/2} C${gateX-GX/2} ${s36.y+NH/2}, ${gateX-GX/2} ${gy}, ${gcx-30} ${gy}"/>`;
+    const cardY = i => gy + 58 + i*(CH+CG);
+    TRACKS.forEach((t,i)=>{
+      const y = cardY(i), on = track===t.key, cls = track ? (on?'on':'off') : '';
+      deco += `<g class="lg-card ${cls}" data-track="${t.key}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${t.name} track${t.girls?', girls\' teams only':''}">
+        <rect class="bg" x="${gateX}" y="${y}" width="${NW}" height="${CH}" rx="9"/>
+        <text class="cn" x="${gateX+10}" y="${y+19}">${t.name}</text>
+        ${t.girls?`<g class="gb"><rect x="${gateX+NW-60}" y="${y+7}" width="52" height="16" rx="8"/><text x="${gateX+NW-34}" y="${y+18.5}" text-anchor="middle">GIRLS</text></g>`:''}
+        <text class="cc" x="${gateX+10}" y="${y+35}">${esc(t.short)}</text>
+        <text class="cf" x="${gateX+10}" y="${y+51}">Builds on ${foundCount(t)} sessions</text></g>`;
+      if(on && v){
+        const f = POS[right[0].ids[0]];
+        deco += `<path class="lg-link" d="M${gateX+NW} ${y+CH/2} C${f.x-GX/2} ${y+CH/2}, ${f.x-GX/2} ${f.y+NH/2}, ${f.x} ${f.y+NH/2}"/>`;
+      }
+    });
+    if(!v){
+      const x = colX(rightStart), w = colX(8)+NW-x, h = H-TOP-20;
+      deco += `<g class="lg-ph"><rect x="${x}" y="${TOP}" width="${w}" height="${h}" rx="12"/>
+        <text class="big" x="${x+w/2}" y="${TOP+h/2-12}" text-anchor="middle">Choose a track at the gate</text>
+        <text x="${x+w/2}" y="${TOP+h/2+16}" text-anchor="middle">Modules 6, 7 and 8 for that track open here</text></g>`;
+    }
+    // session edges
     Object.keys(POS).forEach(id=>{
-      preFor(id, view).forEach(p=>{
+      const pre = v ? preFor(id, v) : NODES[id].pre;
+      pre.forEach(p=>{
         if(!POS[p]) return;
         const a = POS[p], b = POS[id], cls = (NODES[id].kind==='t'||NODES[p].kind==='t') ? 't' : 'f';
-        let d, cross = a.ci!==b.ci;
-        if(!cross){
-          // same module: arc on the left side of the column
-          const x = a.x, y1 = a.y+NH/2, y2 = b.y+NH/2, bulge = 10 + Math.min(34, (y2-y1)/(NH+GY)*9);
-          d = `M${x} ${y1} C${x-bulge} ${y1}, ${x-bulge} ${y2}, ${x} ${y2}`;
-        } else {
-          const x1 = a.x+NW, y1 = a.y+NH/2, x2 = b.x, y2 = b.y+NH/2, mx = x2 - GX/2;
-          d = `M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
-        }
+        const cross = a.ci!==b.ci; let d;
+        if(!cross){ const x = a.x, y1 = a.y+NH/2, y2 = b.y+NH/2, bl = 10 + Math.min(34,(y2-y1)/(NH+GY)*9); d = `M${x} ${y1} C${x-bl} ${y1}, ${x-bl} ${y2}, ${x} ${y2}`; }
+        else { const x1 = a.x+NW, y1 = a.y+NH/2, x2 = b.x, y2 = b.y+NH/2, mx = x2-GX/2; d = `M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`; }
         EDGES.push({from:p, to:id});
         edges += `<path class="lg-e ${cls}${cross?' x':''}" data-f="${p}" data-t="${id}" d="${d}" marker-end="url(#lg-ar-${cls})"/>`;
       });
     });
     Object.entries(POS).forEach(([id,p])=>{
-      const n = NODES[id], cap = n.s.cap, lines = wrapText(n.s.t.replace('Capstone: ',''), 21);
-      const k = cap ? 'c' : n.kind;
+      const n = NODES[id], cap = n.s.cap, L = wrapText(n.s.t.replace('Capstone: ',''), 21), k = cap ? 'c' : n.kind;
       nodes += `<g class="lg-n ${k}" data-id="${id}" tabindex="0" role="button" aria-label="Session ${n.s.n}, ${esc(n.s.t)}">
         <rect x="${p.x}" y="${p.y}" width="${NW}" height="${NH}" rx="8"/>
         <text class="sn" x="${p.x+10}" y="${p.y+15}">S${n.s.n}${cap?' · CAPSTONE':''}</text>
-        ${lines.map((l,li)=>`<text class="st2" x="${p.x+10}" y="${p.y+30+li*13}">${esc(l)}</text>`).join('')}</g>`;
+        ${L.map((l,li)=>`<text class="st2" x="${p.x+10}" y="${p.y+30+li*13}">${esc(l)}</text>`).join('')}</g>`;
     });
     const mk = c => `<marker id="lg-ar-${c}" viewBox="0 0 8 8" refX="7.5" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--${c==='f'?'found':'track'})"/></marker>`;
-    wrap.innerHTML = `<svg class="lg-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Learning graph for Foundation, the ${esc(view.label)} track and Module 8"><defs>${mk('f')}${mk('t')}</defs>${heads}${edges}${nodes}</svg>`;
+    const label = v ? `Foundation, the selection gate, the ${esc(v.label)} track and Module 8` : 'Foundation and the selection gate with four tracks to choose from';
+    wrap.innerHTML = `<svg class="lg-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Learning graph: ${label}"><defs>${mk('f')}${mk('t')}</defs>${heads}${deco}${edges}${nodes}</svg>`;
     select(selId && POS[selId] ? selId : null);
   }
-  function closure(id, dir){
-    const seen = new Set(), stack = [id];
-    while(stack.length){ const c = stack.pop(); EDGES.forEach(e=>{ const nxt = dir==='up' ? (e.to===c?e.from:null) : (e.from===c?e.to:null); if(nxt && !seen.has(nxt)){ seen.add(nxt); stack.push(nxt); } }); }
-    return seen;
-  }
+
   function select(id){
     selId = id;
     const svg = wrap.querySelector('svg');
     svg.classList.toggle('on', !!id);
     svg.querySelectorAll('.lg-n').forEach(g=>g.classList.remove('hl','sel'));
     svg.querySelectorAll('.lg-e').forEach(e=>e.classList.remove('up','dn'));
-    if(!id){ info.innerHTML = '<p class="none">Select a session in the graph to see what it builds on and what it unlocks.</p>'; return; }
-    const up = closure(id,'up'), dn = closure(id,'dn');
+    svg.querySelectorAll('.lg-card').forEach(c=>c.classList.remove('fed'));
+    if(!id){
+      info.innerHTML = track ? '<p class="none">Select a session to see what it builds on and what it unlocks. Select another track card at the gate to switch track.</p>'
+                             : '<p class="none">Modules 1 to 5 are shared by every learner. Choose a track at the gate to open its Modules 6, 7 and 8, or select a Foundation session to see which tracks it feeds.</p>';
+      return;
+    }
+    const up = reach(id, EDGES, 'up'), dn = reach(id, EDGES, 'dn');
     svg.querySelectorAll('.lg-n').forEach(g=>{ const k = g.dataset.id; if(k===id||up.has(k)||dn.has(k)) g.classList.add('hl'); if(k===id) g.classList.add('sel'); });
     svg.querySelectorAll('.lg-e').forEach(e=>{ const f = e.dataset.f, t = e.dataset.t;
-      if((t===id||up.has(t)) && (up.has(f))) e.classList.add('up');
+      if((t===id||up.has(t)) && up.has(f)) e.classList.add('up');
       if((f===id||dn.has(f)) && dn.has(t)) e.classList.add('dn'); });
-    const n = NODES[id], direct = preFor(id, view).filter(p=>POS[p]), next = EDGES.filter(e=>e.from===id).map(e=>e.to);
+    const fed = NODES[id].kind==='f' ? feeds(id) : [];
+    if(!track) svg.querySelectorAll('.lg-card').forEach(c=>{ if(fed.includes(c.dataset.track)) c.classList.add('fed'); });
+    const n = NODES[id], v = viewFor();
+    const direct = (v ? preFor(id, v) : n.pre).filter(p=>POS[p]), next = EDGES.filter(e=>e.from===id).map(e=>e.to);
     const chip = (k,c) => `<button class="chip ${c}" data-go="${k}">${nodeLabel(k)} ${esc(NODES[k].s.t.replace('Capstone: ',''))}</button>`;
+    const tchip = k => { const t = TRACKS.find(x=>x.key===k); return `<button class="chip dn" data-track="${k}">${t.name} track</button>`; };
     info.innerHTML = `<h3>S${n.s.n} ${esc(n.s.t)} <span class="eyebrow">${esc(n.mod)}</span></h3>
       <div class="row"><b>Concept</b><span>${esc(n.s.o)}</span></div>
       <div class="row"><b>Objectives</b><span class="list">${(n.s.obj||[]).map((x,j)=>`<span>${j+1}. ${esc(x)}</span>`).join('')}</span></div>
       ${n.s.ls?`<div class="row"><b>Life skill</b><span>${esc(n.s.ls)}</span></div>`:''}
       <div class="row"><b>Builds on</b>${direct.length?direct.map(k=>chip(k,'up')).join(''):'<span class="none">Starting point, nothing needed first</span>'}</div>
-      <div class="row"><b>Unlocks</b>${next.length?next.map(k=>chip(k,'dn')).join(''):'<span class="none">Nothing further in this view</span>'}</div>
-      <div class="row"><b>In total</b><span>${up.size} session${up.size===1?'':'s'} needed first, ${dn.size} unlocked later</span></div>`;
+      <div class="row"><b>Unlocks</b>${next.length?next.map(k=>chip(k,'dn')).join(''):(track?'<span class="none">Nothing further in this view</span>':'<span class="none">Nothing further in Foundation</span>')}</div>
+      ${n.kind==='f'?`<div class="row"><b>Feeds tracks</b>${fed.length?fed.map(tchip).join(''):'<span class="none">No track builds on it directly</span>'}</div>`:''}`;
   }
-  wrap.addEventListener('click', e=>{ const g = e.target.closest('.lg-n'); if(g) select(g.dataset.id===selId ? null : g.dataset.id); else if(e.target.closest('svg')) select(null); });
-  wrap.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ const g = e.target.closest('.lg-n'); if(g){ e.preventDefault(); select(g.dataset.id); } } if(e.key==='Escape') select(null); });
-  info.addEventListener('click', e=>{ const c = e.target.closest('.chip'); if(c){ select(c.dataset.go); const g = wrap.querySelector(`.lg-n[data-id="${c.dataset.go}"]`); if(g) g.focus({preventScroll:true}); } });
-  ctr.addEventListener('click', e=>{ const b = e.target.closest('.tab'); if(!b) return; view = LG_VIEWS.find(v=>v.id===b.dataset.v); ctr.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-pressed', x===b)); draw(); });
+  function openTrack(k){ track = (track===k ? null : k); draw();
+    if(track){ const svg = wrap.querySelector('svg'); const sc = svg.getBoundingClientRect().width / GEO.W;
+      if(wrap.scrollWidth > wrap.clientWidth + 4) wrap.scrollTo({left: Math.max(0, (GEO.gateX - 40)*sc - 24), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); } }
+  wrap.addEventListener('click', e=>{
+    const c = e.target.closest('.lg-card'); if(c){ openTrack(c.dataset.track); return; }
+    const o = e.target.closest('.lg-opt'); if(o){ raceOpt = o.dataset.opt; draw(); return; }
+    if(e.target.closest('.lg-gate')){ track = null; draw(); return; }
+    const g = e.target.closest('.lg-n'); if(g){ select(g.dataset.id===selId ? null : g.dataset.id); return; }
+    if(e.target.closest('svg')) select(null);
+  });
+  wrap.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){ select(null); return; }
+    if(e.key!=='Enter' && e.key!==' ') return;
+    const c = e.target.closest('.lg-card'), o = e.target.closest('.lg-opt'), g = e.target.closest('.lg-n'), gt = e.target.closest('.lg-gate');
+    if(c||o||g||gt) e.preventDefault();
+    if(c) openTrack(c.dataset.track); else if(o){ raceOpt = o.dataset.opt; draw(); } else if(gt){ track = null; draw(); } else if(g) select(g.dataset.id);
+  });
+  info.addEventListener('click', e=>{
+    const t = e.target.closest('.chip[data-track]'); if(t){ track = null; openTrack(t.dataset.track); return; }
+    const c = e.target.closest('.chip[data-go]'); if(c){ select(c.dataset.go); const g = wrap.querySelector(`.lg-n[data-id="${c.dataset.go}"]`); if(g) g.focus({preventScroll:true}); }
+  });
   draw();
 })();
 </script>
